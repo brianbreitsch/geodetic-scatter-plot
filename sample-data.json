@@ -1,7 +1,8 @@
 
 [{
   "data":
-  { "latitude": 39.51069383,
+  { "api_key": "AIzaSyDcxotfylh6ylNGW9oj-0sv7y_aUHnY_vU",
+    "latitude": 39.51069383,
     "longitude": -84.7322943,
     "comment": "The format for points is Nx3 array of float values representing latitude, longitude, altitude",
     "points":
