@@ -6,24 +6,24 @@ var inherits = require('inherits');
 var d3 = require('d3');
 
 
+// creates our Google map and subclasses ScatterOverlay, which 
+// may only be done after Google Maps API has loaded
 function initializeMap(viz) {
     var mapOptions = {
         center: new google.maps.LatLng(viz.data.latitude, viz.data.longitude),
         zoom: 19,
         mapTypeId: google.maps.MapTypeId.SATELLITE
     };
-
-    // Create Google Map
+    // create Google map
     var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-    // subclassing
+    // subclass OverlayView
     ScatterOverlay.prototype = new google.maps.OverlayView();
-    // Create an overlay for the map
+    // create an overlay for the map
     var overlay = new ScatterOverlay(viz.data);
-
+    // assign our overlay to our map
     overlay.setMap(map);
-    //overlay.onAdd();
-    //overlay.draw();
 }
+
 
 function loadGoogle(api_key) {
     var script = document.createElement('script');
@@ -49,17 +49,7 @@ function ScatterOverlay(initData) {
             .style("left", (d.x - padding) + "px")
             .style("top", (d.y - padding) + "px");
     }
-    
-    function transformWithEase(d) {
-        var padding = 10;
-        d = new google.maps.LatLng(d[0], d[1]);
-        d = _projection.fromLatLngToDivPixel(d);
-        return d3.select(this)
-            .transition().duration(300)
-            .style("left", (d.x - padding) + "px")
-            .style("top", (d.y - padding) + "px");
-    }
-
+   
     //superclass methods for google maps
     this.onAdd = function() {
         _div = d3.select(self.getPanes().overlayLayer)
@@ -78,7 +68,7 @@ function ScatterOverlay(initData) {
             .each(transform)
             .attr("class", "marker");
 
-        // Add a circle.
+        // add a circle.
         marker.append("svg:circle")
             .attr("r", 4.5)
             .attr("cx", padding)
@@ -89,25 +79,8 @@ function ScatterOverlay(initData) {
         _div.remove();
     };
 
-    this.update = function(data) {                    
-        //update internal data which drive redrawing on zoom_changed                   
-        /* for (var i = 0; i < data.length; i++) {
-            var found = false;
-            for (var j = 0; j < _data.length; j++) {
-                if (_data[j].Key === data[i].Key) {
-                    found = true;
-                    _data[j].Lat = data[i].Lat;
-                    _data[j].Long = data[i].Long;
-                }
-            }
-            if (!found)
-                _data.push(data[i]);
-        }
-        //this.draw();
-        _div.selectAll("svg")
-            .data(_data, function (d) { return d.Key; }) 
-            .each(transformWithEase);
-      */
+    this.update = function(data) {
+        // unused (Google automatically calls draw again I believe)
     };
 }
 
@@ -120,7 +93,6 @@ var GeodeticScatterPlot = function(selector, data, images, opts) {
     this.height = (opts.height || (this.width * 0.6));
     this.data = data;
     this.selector = selector;
-    //console.log(this.selector);
     var self = this;
 
 
@@ -131,7 +103,8 @@ var GeodeticScatterPlot = function(selector, data, images, opts) {
     $(this.selector).first().append($mapDiv);
     
     // add style for d3 to DOM body
-    // TODO move to init map?
+    // TODO move to init map? Or put in style sheet
+    /*
     $("<style>")
         .prop("type", "text/css")
         .html("\
@@ -139,15 +112,14 @@ var GeodeticScatterPlot = function(selector, data, images, opts) {
              .points, .points svg { position: absolute; }\
              .points svg { width: 60px; height: 20px; padding-right: 100px; font: 10px sans-serif; }\
              .points circle { fill: brown; stroke: black; stroke-width: 1.5px; }\
-             ").appendTo("body");
+             ").appendTo("body");*/
 
     this.updateData = function() {
         console.log('updateData');
     }
 
     var api_key = this.data.api_key;
-    //console.log('API_KEY: ' + api_key);
-      
+
     window.initMap = function() { initializeMap(self) };
     loadGoogle(api_key);
 };
